@@ -19,27 +19,35 @@
             if (isset($_POST["login"])) {
                 $email = $_POST["email"];
                 $password = $_POST["password"];
+                $errors = array();
 
                 if (empty($email) || empty($password)) {
                     array_push($errors, "All fields are required");
                 }
 
-                require_once "database.php";
-                $sql = "SELECT * from users WHERE email = '$email'";
-                $result  = mysqli_query($conn,$sql);
-                $user = mysqli_fetch_array($result);
-                if($user) {
-                    if(password_verify($password, $user["password"])) {
-                        session_start();
-                        $_SESSION["user"] = "yes";
-                        header("Location: index.php");
-                        die();
-                    } else {
-                    echo "<div class='alert alert-danger'>Password does not match </div>";
+                if (!empty($errors)) {
+                    foreach ($errors as $error) {
+                    echo "<div class='alert alert-danger'>$error</div>";
                     }
                 } else {
-                    echo "<div class='alert alert-danger'>Email does not match </div>";
+                    require_once "database.php";
+                    $sql = "SELECT * from users WHERE email = '$email'";
+                    $result  = mysqli_query($conn,$sql);
+                    $user = mysqli_fetch_array($result);
+                    if($user) {
+                        if(password_verify($password, $user["password"])) {
+                            session_start();
+                            $_SESSION["user"] = "yes";
+                            header("Location: index.php");
+                            die();
+                        } else {
+                        echo "<div class='alert alert-danger'>Password does not match </div>";
+                        }
+                    } else {
+                        echo "<div class='alert alert-danger'>Email does not match </div>";
+                    }
                 }
+
             }
             ?>
         <form action="login.php" method="post">
